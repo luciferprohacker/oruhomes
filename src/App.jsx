@@ -378,16 +378,10 @@ export default function App() {
             setSelectedGenderFilter("all");
             setSelectedSharingFilter("all");
           }}
-          className="flex items-center gap-1.5 cursor-pointer"
+          className="flex items-center cursor-pointer"
           whileTap={{ scale: 0.95 }}
         >
-          {/* Logo Pin Marker Icon Layout representing Pin-R-Pin */}
-          <div className="flex items-center gap-0.5">
-            <span className="material-symbols-outlined text-[#0f7a3a] fill text-lg">location_on</span>
-            <span className="text-lg font-black text-[#0f7a3a] leading-none">R</span>
-            <span className="material-symbols-outlined text-[#0f7a3a] fill text-lg">location_on</span>
-          </div>
-          <span className="text-sm font-extrabold text-[#0f7a3a] tracking-tight">Oruhomes</span>
+          <img src="/oro-logo.png" alt="ORO Logo" className="h-7 object-contain" />
         </motion.div>
         
         <div className="flex items-center gap-2">
@@ -427,15 +421,9 @@ export default function App() {
             setSelectedGenderFilter("all");
             setSelectedSharingFilter("all");
           }} 
-          className="flex items-center gap-2 cursor-pointer"
+          className="flex items-center cursor-pointer"
         >
-          {/* Logo Pin Marker Icon Layout */}
-          <div className="flex items-center gap-0.5">
-            <span className="material-symbols-outlined text-[#0f7a3a] fill text-2xl">location_on</span>
-            <span className="text-2xl font-black text-[#0f7a3a] leading-none">R</span>
-            <span className="material-symbols-outlined text-[#0f7a3a] fill text-2xl">location_on</span>
-          </div>
-          <span className="text-xl font-extrabold text-[#0f7a3a] tracking-tight">Oruhomes</span>
+          <img src="/oro-logo.png" alt="ORO Logo" className="h-9 object-contain" />
         </div>
         <nav className="flex gap-8">
           {['home', 'search', 'bookings'].map((tab) => (

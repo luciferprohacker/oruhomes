@@ -1,8 +1,144 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// --- Floating Mascot Helper Widget ---
+function FloatingMascot({ setCurrentPage, setSearchQuery, setSelectedGenderFilter }) {
+  const [hovered, setHovered] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [bubbleText, setBubbleText] = useState("Hey! I'm ORU. Let's find your perfect home! 🏠");
+
+  // Cycle speech bubble helper suggestions
+  useEffect(() => {
+    const texts = [
+      "Hey! I'm ORU. Let's find your perfect home! 🏠",
+      "Need WiFi, AC, or laundry? Just ask me! ⚡",
+      "I've verified all these properties personally! ✅",
+      "Click me to open quick search shortcuts! 🚀"
+    ];
+    let idx = 0;
+    const interval = setInterval(() => {
+      if (!open) {
+        idx = (idx + 1) % texts.length;
+        setBubbleText(texts[idx]);
+      }
+    }, 7000);
+    return () => clearInterval(interval);
+  }, [open]);
+
+  return (
+    <div className="fixed bottom-20 md:bottom-6 right-4 z-45 flex flex-col items-end">
+      
+      {/* Speech Bubble */}
+      <AnimatePresence>
+        {!open && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            className="bg-white border border-zinc-200 shadow-xl rounded-2xl px-3 py-2 text-[11px] font-bold text-zinc-700 max-w-[190px] mb-2 relative mr-2 border-t-2 border-t-[#0f7a3a]"
+          >
+            {bubbleText}
+            {/* Arrow pointer */}
+            <div className="absolute bottom-[-5px] right-6 w-2.5 h-2.5 bg-white border-r border-b border-zinc-200 rotate-45"></div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Interactive Mascot Avatar */}
+      <motion.div 
+        onClick={() => setOpen(!open)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        animate={{ 
+          y: hovered ? -5 : [0, -6, 0] 
+        }}
+        transition={{ 
+          y: hovered 
+            ? { duration: 0.15 } 
+            : { repeat: Infinity, duration: 3, ease: "easeInOut" } 
+        }}
+        className="w-16 h-16 md:w-20 md:h-20 cursor-pointer relative select-none"
+      >
+        <img 
+          src={open ? "/oru-help.png" : hovered ? "/oru-thumbs-up.png" : "/oru-hi-there.png"} 
+          alt="ORU Mascot" 
+          className="w-full h-full object-contain drop-shadow-md"
+        />
+        {/* Pulsing neon back glow */}
+        <div className="absolute inset-0 bg-[#0f7a3a]/15 rounded-full blur-md -z-10 scale-90 animate-pulse"></div>
+      </motion.div>
+
+      {/* Mini Assistant Console Panel */}
+      <AnimatePresence>
+        {open && (
+          <>
+            {/* Overlay click to close */}
+            <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white border border-zinc-200 shadow-2xl rounded-2xl p-4 w-[270px] space-y-3 z-40 mb-3 relative"
+            >
+              <div className="flex items-center gap-2.5 border-b border-zinc-100 pb-2">
+                <div className="w-10 h-10 bg-zinc-50 rounded-full p-0.5 border border-zinc-200">
+                  <img src="/oru-victory.png" alt="ORU" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-zinc-800">Ask ORU Assistant</h4>
+                  <span className="text-[9px] text-[#0f7a3a] font-bold">Mascot • Feels Like Home 🏠</span>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider block">Quick Search Shortcuts</span>
+                <div className="flex flex-col gap-1.5 text-[10px] font-bold text-zinc-700">
+                  <button 
+                    onClick={() => {
+                      setSelectedGenderFilter("Men");
+                      setCurrentPage("search");
+                      setOpen(false);
+                    }}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 border border-zinc-150 hover:bg-emerald-50 hover:text-[#0f7a3a] text-left cursor-pointer transition-all active:scale-95 duration-100"
+                  >
+                    <span>♂️ Show Boys PGs</span>
+                    <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setSelectedGenderFilter("Women");
+                      setCurrentPage("search");
+                      setOpen(false);
+                    }}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 border border-zinc-150 hover:bg-emerald-50 hover:text-[#0f7a3a] text-left cursor-pointer transition-all active:scale-95 duration-100"
+                  >
+                    <span>♀️ Show Girls PGs</span>
+                    <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setSearchQuery("Koramangala");
+                      setCurrentPage("search");
+                      setOpen(false);
+                    }}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 border border-zinc-150 hover:bg-emerald-50 hover:text-[#0f7a3a] text-left cursor-pointer transition-all active:scale-95 duration-100"
+                  >
+                    <span>📍 Find rooms in Koramangala</span>
+                    <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// --- App Orchestrator ---
 export default function App() {
-  const [currentPage, setCurrentPage] = useState("home"); // home, search, details, bookings, profile
+  const [currentPage, setCurrentPage] = useState("home"); // home, search, details, bookings
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGenderFilter, setSelectedGenderFilter] = useState("all"); // all, Men, Women, Unisex
   const [selectedSharingFilter, setSelectedSharingFilter] = useState("all"); // all, single
@@ -242,18 +378,32 @@ export default function App() {
             setSelectedGenderFilter("all");
             setSelectedSharingFilter("all");
           }}
-          className="flex items-center gap-2 cursor-pointer"
+          className="flex items-center gap-1.5 cursor-pointer"
           whileTap={{ scale: 0.95 }}
         >
-          <span className="material-symbols-outlined text-[#b80035] fill">home</span>
-          <span className="text-xl font-extrabold text-[#b80035] tracking-tight">Oruhomes</span>
+          {/* Logo Pin Marker Icon Layout representing Pin-R-Pin */}
+          <div className="flex items-center gap-0.5">
+            <span className="material-symbols-outlined text-[#0f7a3a] fill text-lg">location_on</span>
+            <span className="text-lg font-black text-[#0f7a3a] leading-none">R</span>
+            <span className="material-symbols-outlined text-[#0f7a3a] fill text-lg">location_on</span>
+          </div>
+          <span className="text-sm font-extrabold text-[#0f7a3a] tracking-tight">Oruhomes</span>
         </motion.div>
         
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center gap-2">
+          {/* Mascot tiny greeting avatar in header */}
+          <motion.img 
+            src="/oru-hi-there.png" 
+            alt="ORU" 
+            onClick={() => setCurrentPage("home")}
+            className="w-8 h-8 object-contain cursor-pointer"
+            animate={{ rotate: [0, 8, -8, 0] }}
+            transition={{ repeat: Infinity, duration: 4 }}
+          />
           <motion.button 
             onClick={() => setNotificationsOpen(!notificationsOpen)}
             whileTap={{ scale: 0.9 }}
-            className="p-1 rounded-full text-zinc-650 cursor-pointer"
+            className="p-1 rounded-full text-zinc-500 cursor-pointer"
           >
             <span className="material-symbols-outlined">notifications</span>
           </motion.button>
@@ -261,7 +411,7 @@ export default function App() {
           <motion.div 
             onClick={() => setProfileOpen(!profileOpen)}
             whileTap={{ scale: 0.9 }}
-            className="w-8 h-8 rounded-full bg-zinc-200 overflow-hidden cursor-pointer"
+            className="w-8 h-8 rounded-full bg-zinc-200 overflow-hidden cursor-pointer border border-[#0f7a3a]/30"
           >
             <img alt="Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO_oTV1ZDidS6ssoGmdRKR_FxNM7tuKNMzJY80hXRhlzhKAhrfH8gKA_bYT9uUh0vkTEqdC9YgXpeQ8jN3NYSNvQewo7iVZC5UVlnUEM3Qz_rs0sGSCIvHp9MjIWr8yc_HU278vucKkAqTRyOvdjhcMz8Qb1Wn06JyRlFcE7oMjjBmhoXFih7H6TQoEZ2ku2pAz2-D8QS3o0EYI3E7nmT585X8NXhXU17GY0B1IQeV1Sr3WTwXEGH69Q"/>
           </motion.div>
@@ -279,8 +429,13 @@ export default function App() {
           }} 
           className="flex items-center gap-2 cursor-pointer"
         >
-          <span className="material-symbols-outlined text-[#b80035] fill">home</span>
-          <span className="text-2xl font-black text-[#b80035] tracking-tight">Oruhomes</span>
+          {/* Logo Pin Marker Icon Layout */}
+          <div className="flex items-center gap-0.5">
+            <span className="material-symbols-outlined text-[#0f7a3a] fill text-2xl">location_on</span>
+            <span className="text-2xl font-black text-[#0f7a3a] leading-none">R</span>
+            <span className="material-symbols-outlined text-[#0f7a3a] fill text-2xl">location_on</span>
+          </div>
+          <span className="text-xl font-extrabold text-[#0f7a3a] tracking-tight">Oruhomes</span>
         </div>
         <nav className="flex gap-8">
           {['home', 'search', 'bookings'].map((tab) => (
@@ -296,15 +451,27 @@ export default function App() {
               }}
               className={`font-semibold text-sm pb-1 transition-all capitalize cursor-pointer ${
                 currentPage === tab 
-                  ? 'text-[#b80035] border-b-2 border-[#b80035]' 
-                  : 'text-zinc-500 hover:text-[#b80035]'
+                  ? 'text-[#0f7a3a] border-b-2 border-[#0f7a3a]' 
+                  : 'text-zinc-500 hover:text-[#0f7a3a]'
               }`}
             >
               {tab}
             </button>
           ))}
         </nav>
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center gap-4">
+          {/* Animated Mascot Header Greeting */}
+          <div className="flex items-center gap-1.5 bg-[#0f7a3a]/5 px-3 py-1 rounded-full border border-[#0f7a3a]/15">
+            <motion.img 
+              src="/oru-hi-there.png" 
+              alt="ORU Waving" 
+              className="w-7 h-7 object-contain"
+              animate={{ rotate: [0, 8, -8, 0] }}
+              transition={{ repeat: Infinity, duration: 3 }}
+            />
+            <span className="text-[10px] font-bold text-[#0f7a3a]">ORU Mascot</span>
+          </div>
+
           <button 
             onClick={() => setNotificationsOpen(!notificationsOpen)}
             className="material-symbols-outlined text-zinc-500 hover:bg-zinc-100 transition-colors rounded-full p-2 cursor-pointer"
@@ -313,7 +480,7 @@ export default function App() {
           </button>
           <div 
             onClick={() => setProfileOpen(!profileOpen)}
-            className="w-10 h-10 rounded-full bg-zinc-200 overflow-hidden cursor-pointer hover:opacity-90"
+            className="w-10 h-10 rounded-full bg-zinc-200 overflow-hidden cursor-pointer hover:opacity-90 border border-[#0f7a3a]/20"
           >
             <img alt="Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZWwmXknTGWRScI4S0M88trTJLm1rJ-Htz6Ed_RxGoEXkMswj8uA_R-C6dV1EujGGY_a0NscECE5pv25StkoEQgayAxitbQ61bXHuJ-AaJP7Ff4534ZEGS4M9_GAdQEsShqZwf1TUVII3t1gV_x3D36AoXRKAhJ8DBylOJCQRvaJSG_m99Fd0fxXE0tzJT4ACcubB5v6KwJm1K9c0WFiKx5du7AoziG2QV2Ha5qPNsMlb0PGMNIk5L_A"/>
           </div>
@@ -336,8 +503,9 @@ export default function App() {
                 <div className="p-1.5 hover:bg-zinc-50 rounded">
                   🎉 Welcome to Oruhomes! Search now to book your first verified PG.
                 </div>
-                <div className="p-1.5 hover:bg-zinc-50 rounded">
-                  📞 Booking confirmed for Sunrise Boys Hostel. Contact Warden.
+                <div className="p-1.5 hover:bg-zinc-50 rounded flex items-start gap-1">
+                  <img src="/oru-victory.png" alt="ORU" className="w-4 h-4 object-contain" />
+                  <span>Booking confirmed for Sunrise Boys Hostel! Contact warden.</span>
                 </div>
               </div>
             </motion.div>
@@ -357,7 +525,7 @@ export default function App() {
               className="absolute right-4 top-16 z-50 bg-white border border-zinc-200 shadow-xl rounded-xl p-4 w-[240px] space-y-4 text-center"
             >
               <div className="flex flex-col items-center space-y-1.5">
-                <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#b80035]">
+                <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#0f7a3a]">
                   <img alt="Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZWwmXknTGWRScI4S0M88trTJLm1rJ-Htz6Ed_RxGoEXkMswj8uA_R-C6dV1EujGGY_a0NscECE5pv25StkoEQgayAxitbQ61bXHuJ-AaJP7Ff4534ZEGS4M9_GAdQEsShqZwf1TUVII3t1gV_x3D36AoXRKAhJ8DBylOJCQRvaJSG_m99Fd0fxXE0tzJT4ACcubB5v6KwJm1K9c0WFiKx5du7AoziG2QV2Ha5qPNsMlb0PGMNIk5L_A"/>
                 </div>
                 <h4 className="text-xs font-bold text-zinc-800">Aditya Kumar</h4>
@@ -395,11 +563,26 @@ export default function App() {
           >
             {/* Search & Hero Section */}
             <section className="px-4 mt-6">
-              <h1 className="text-4xl font-extrabold text-[#191c1d] mb-4 leading-tight tracking-tight">
-                Find your next <br/><span className="text-[#b80035] underline decoration-rose-200">home.</span>
-              </h1>
+              <div className="flex flex-col-reverse md:flex-row items-start md:items-center justify-between gap-6 mb-6">
+                <div>
+                  <h1 className="text-4xl font-extrabold text-[#191c1d] leading-tight tracking-tight">
+                    Find your next <br/><span className="text-[#0f7a3a] underline decoration-emerald-200">home.</span>
+                  </h1>
+                  <p className="text-xs text-zinc-550 font-medium mt-1">Verified Properties • Prime Locations by ORO Solutions</p>
+                </div>
+                
+                {/* Big Mascot Banner Illustration */}
+                <motion.div 
+                  className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-tr from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100 flex items-center justify-center p-2 relative shadow-inner shrink-0"
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                >
+                  <img src="/oru-mascot-main.png" alt="ORU Mascot" className="w-full h-full object-contain" />
+                  <div className="absolute top-1 right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></div>
+                </motion.div>
+              </div>
               
-              <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-4 flex flex-col md:flex-row gap-4 border border-zinc-200">
+              <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.03)] p-4 flex flex-col md:flex-row gap-4 border border-zinc-200">
                 <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 flex-1 bg-zinc-150 p-3 rounded-xl">
                   <span className="material-symbols-outlined text-zinc-500">search</span>
                   <input 
@@ -418,14 +601,14 @@ export default function App() {
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center justify-center gap-2 bg-zinc-150 px-4 py-3 rounded-xl text-zinc-700 font-bold text-xs flex-1 md:flex-none hover:bg-zinc-200 transition-colors cursor-pointer"
                   >
-                    <span className={`material-symbols-outlined text-[#b80035] text-sm ${isDetecting ? 'animate-spin' : ''}`}>my_location</span>
+                    <span className={`material-symbols-outlined text-[#0f7a3a] text-sm ${isDetecting ? 'animate-spin' : ''}`}>my_location</span>
                     {isDetecting ? 'Locating...' : 'Near Me'}
                   </motion.button>
                   
                   <motion.button 
                     onClick={() => setCurrentPage("search")}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-[#b80035] text-white px-6 py-3 rounded-xl font-bold text-xs hover:bg-[#a0002e] transition-colors shadow-sm cursor-pointer"
+                    className="bg-[#0f7a3a] text-white px-6 py-3 rounded-xl font-bold text-xs hover:bg-[#0b5f2c] transition-colors shadow-sm cursor-pointer"
                   >
                     Search
                   </motion.button>
@@ -441,7 +624,7 @@ export default function App() {
                     setCurrentPage("search");
                   }} 
                   whileTap={{ scale: 0.95 }}
-                  className="whitespace-nowrap px-4 py-1.5 rounded-full border border-[#0f172a] bg-[#0f172a] text-white font-bold text-xs transition-colors cursor-pointer"
+                  className="whitespace-nowrap px-4 py-1.5 rounded-full border border-[#0f7a3a] bg-[#0f7a3a] text-white font-bold text-xs transition-colors cursor-pointer"
                 >
                   All
                 </motion.button>
@@ -502,7 +685,7 @@ export default function App() {
                     setSelectedSharingFilter("all");
                     setCurrentPage("search");
                   }} 
-                  className="text-[#b80035] font-bold text-xs flex items-center gap-0.5 hover:underline cursor-pointer"
+                  className="text-[#0f7a3a] font-bold text-xs flex items-center gap-0.5 hover:underline cursor-pointer"
                 >
                   View All <span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </button>
@@ -542,7 +725,7 @@ export default function App() {
                       {/* Amenities Row */}
                       <div className="flex items-center gap-2 pt-1 border-t border-zinc-100 mt-1">
                         {pg.amenities.map((am, idx) => (
-                          <div key={idx} className="w-6 h-6 rounded-md bg-zinc-100 flex-center text-zinc-650" title={am}>
+                          <div key={idx} className="w-6 h-6 rounded-md bg-zinc-50 border border-zinc-200 flex-center text-zinc-500" title={am}>
                             <span className="material-symbols-outlined text-sm">{am === 'wifi' ? 'wifi' : am === 'restaurant' ? 'restaurant' : am === 'ac_unit' ? 'ac_unit' : 'cleaning_services'}</span>
                           </div>
                         ))}
@@ -553,7 +736,7 @@ export default function App() {
                           <span className="text-sm font-extrabold text-[#B45309]">₹{pg.price.toLocaleString('en-IN')}</span>
                           <span className="text-[10px] text-zinc-400">/mo</span>
                         </div>
-                        <span className="text-[10px] font-bold text-[#b80035] group-hover:translate-x-0.5 transition-transform">Book Room</span>
+                        <span className="text-[10px] font-bold text-[#0f7a3a] group-hover:translate-x-0.5 transition-transform">Book Room</span>
                       </div>
                     </div>
                   </motion.div>
@@ -617,7 +800,7 @@ export default function App() {
                     }}
                     className={`px-4 py-2 rounded-full whitespace-nowrap text-xs font-bold h-10 flex items-center border transition-all cursor-pointer ${
                       isActive 
-                        ? 'bg-[#0f172a] border-[#0f172a] text-white shadow-sm' 
+                        ? 'bg-[#0f7a3a] border-[#0f7a3a] text-white shadow-sm' 
                         : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-100'
                     }`}
                   >
@@ -725,7 +908,7 @@ export default function App() {
             {/* Map View FAB */}
             <button 
               onClick={() => setShowMobileMap(true)}
-              className="fixed bottom-20 md:bottom-8 right-container-margin bg-primary text-on-primary rounded-full px-6 py-4 shadow-[0_8px_30px_rgba(184,0,53,0.3)] flex items-center gap-2 font-label-bold text-label-bold hover:scale-105 active:scale-95 transition-all z-40 cursor-pointer"
+              className="fixed bottom-20 md:bottom-8 right-container-margin bg-[#0f7a3a] text-white rounded-full px-6 py-4 shadow-[0_8px_30px_rgba(15,122,58,0.3)] flex items-center gap-2 font-bold text-xs hover:scale-105 active:scale-95 transition-all z-40 cursor-pointer"
             >
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>map</span>
               Map View
@@ -760,7 +943,7 @@ export default function App() {
                       navigator.clipboard.writeText(window.location.href);
                       alert("Shareable URL copied to clipboard!");
                     }}
-                    className="w-10 h-10 rounded-full bg-white/85 backdrop-blur-md flex items-center justify-center shadow-md cursor-pointer text-zinc-850 hover:text-[#b80035]"
+                    className="w-10 h-10 rounded-full bg-white/85 backdrop-blur-md flex items-center justify-center shadow-md cursor-pointer text-zinc-850 hover:text-[#0f7a3a]"
                   >
                     <span className="material-symbols-outlined">share</span>
                   </motion.button>
@@ -816,6 +999,22 @@ export default function App() {
 
               {/* Detail sheets container */}
               <div className="px-4 pt-6 bg-white rounded-t-3xl -mt-6 relative z-10 md:mt-8 md:rounded-none md:bg-transparent">
+                
+                {/* Mascot Verification Endorsement Badge */}
+                <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl p-3 mb-6">
+                  <motion.img 
+                    src="/oru-help.png" 
+                    alt="ORU Mascot" 
+                    className="w-12 h-12 object-contain"
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 4 }}
+                  />
+                  <div>
+                    <h5 className="text-[11px] font-black text-[#0f7a3a]">ORU Verified Property</h5>
+                    <p className="text-[10px] text-zinc-500 font-light mt-0.5">"I have audited this room. Hygiene, locks, and fiber WiFi are in perfect condition!"</p>
+                  </div>
+                </div>
+
                 <div className="flex flex-col gap-2 mb-6 border-b border-zinc-150 pb-6">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="inline-flex items-center gap-1 bg-[#eefff7] text-[#006855] px-2.5 py-1 rounded-sm font-bold text-xs border border-[#006855]/20">
@@ -839,7 +1038,7 @@ export default function App() {
                   <div className="grid grid-cols-4 gap-3">
                     {selectedPg.amenities.map((am, idx) => (
                       <div key={idx} className="bg-zinc-50 border border-zinc-150 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5 text-center shadow-sm">
-                        <span className="material-symbols-outlined text-[#b80035] text-[24px]">{am === 'wifi' ? 'wifi' : am === 'ac_unit' ? 'ac_unit' : am === 'restaurant' ? 'restaurant' : am === 'local_laundry_service' ? 'local_laundry_service' : 'security'}</span>
+                        <span className="material-symbols-outlined text-[#0f7a3a] text-[24px]">{am === 'wifi' ? 'wifi' : am === 'ac_unit' ? 'ac_unit' : am === 'restaurant' ? 'restaurant' : am === 'local_laundry_service' ? 'local_laundry_service' : 'security'}</span>
                         <span className="text-[9px] font-black text-zinc-500 capitalize">{am.split('_')[0]}</span>
                       </div>
                     ))}
@@ -860,7 +1059,7 @@ export default function App() {
                   <div className="w-full h-44 rounded-xl overflow-hidden bg-zinc-150 shadow-sm relative border border-zinc-200">
                     <img className="w-full h-full object-cover opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL8QaGuuf2T3EWhYVSIafXg-L8DhdbiGRrYnvq3wxxJVSLUdlKKIHrZz5WbtHpVLD3esKmg4nKJXRLgDSkF1ebSOjNpNTFvwgyyLQ31_2dq1qsVMwEwDfNmGMvo4le7jJVju7_6dv1I3aD-80v6NKF-yYbnnl-y38twoY_jBmItf5CfancjfFdMjnbYcuSeoNx6Z0fb4KhsdLlMC-UZiWpK9AS9gQG3Ha3pDSHF1uPlbaSQNsQd9b0XQ" alt="map"/>
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="bg-[#b80035] text-white rounded-full p-2 shadow-lg flex items-center justify-center animate-bounce">
+                      <div className="bg-[#0f7a3a] text-white rounded-full p-2 shadow-lg flex items-center justify-center animate-bounce">
                         <span className="material-symbols-outlined icon-fill">location_on</span>
                       </div>
                     </div>
@@ -882,7 +1081,7 @@ export default function App() {
                 <motion.button 
                   onClick={() => setShowBookingModal(true)}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-[#b80035] text-white px-8 py-3 rounded-xl font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-transform shadow-md cursor-pointer hover:bg-[#a0002e]"
+                  className="bg-[#0f7a3a] text-white px-8 py-3 rounded-xl font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-transform shadow-md cursor-pointer hover:bg-[#0b5f2c]"
                 >
                   Book Now
                   <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -902,9 +1101,12 @@ export default function App() {
             transition={{ duration: 0.25 }}
             className="px-4 pt-16 md:pt-24 max-w-[1200px] mx-auto pb-16 space-y-6"
           >
-            <div className="border-b border-zinc-250 pb-2">
-              <h1 className="text-xl font-extrabold text-zinc-800">My Bookings Ledger</h1>
-              <p className="text-[11px] text-zinc-400 font-light">View active contracts, invoices, and room occupancy confirmations.</p>
+            <div className="border-b border-zinc-250 pb-2 flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-extrabold text-zinc-800">My Bookings Ledger</h1>
+                <p className="text-[11px] text-zinc-400 font-light">View active contracts, invoices, and room occupancy confirmations.</p>
+              </div>
+              <img src="/oru-victory.png" alt="ORU" className="w-12 h-12 object-contain" />
             </div>
 
             <div className="space-y-4">
@@ -924,7 +1126,7 @@ export default function App() {
                     <span className="text-xs font-extrabold text-[#B45309] font-mono">{b.rent}/mo</span>
                     <button 
                       onClick={() => alert("Digital Contract PDF generated! Downloading file...")}
-                      className="text-[10px] font-bold text-[#b80035] hover:underline cursor-pointer flex items-center gap-0.5"
+                      className="text-[10px] font-bold text-[#0f7a3a] hover:underline cursor-pointer flex items-center gap-0.5"
                     >
                       <span className="material-symbols-outlined text-sm">download</span> Contract
                     </button>
@@ -964,7 +1166,7 @@ export default function App() {
                     setShowMobileMap(false);
                     setCurrentPage("details");
                   }}
-                  className="absolute p-2 bg-[#b80035] text-white rounded-full shadow-lg flex items-center justify-center animate-pulse"
+                  className="absolute p-2 bg-[#0f7a3a] text-white rounded-full shadow-lg flex items-center justify-center animate-pulse"
                   style={{
                     left: `${25 + idx * 15}%`,
                     top: `${40 + (idx % 2) * 15}%`
@@ -1012,7 +1214,7 @@ export default function App() {
                         onClick={() => setSelectedGenderFilter(g)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                           selectedGenderFilter === g 
-                            ? 'bg-[#b80035] border-[#b80035] text-white' 
+                            ? 'bg-[#0f7a3a] border-[#0f7a3a] text-white' 
                             : 'bg-white border-zinc-200 text-zinc-700'
                         }`}
                       >
@@ -1029,7 +1231,7 @@ export default function App() {
                       onClick={() => setSelectedSharingFilter("all")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                         selectedSharingFilter === 'all' 
-                          ? 'bg-[#b80035] border-[#b80035] text-white' 
+                          ? 'bg-[#0f7a3a] border-[#0f7a3a] text-white' 
                           : 'bg-white border-zinc-200 text-zinc-700'
                       }`}
                     >
@@ -1039,7 +1241,7 @@ export default function App() {
                       onClick={() => setSelectedSharingFilter("single")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                         selectedSharingFilter === 'single' 
-                          ? 'bg-[#b80035] border-[#b80035] text-white' 
+                          ? 'bg-[#0f7a3a] border-[#0f7a3a] text-white' 
                           : 'bg-white border-zinc-200 text-zinc-700'
                       }`}
                     >
@@ -1069,11 +1271,11 @@ export default function App() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl border border-zinc-200 shadow-2xl p-6 max-w-sm w-full space-y-6 relative"
+              className="bg-white rounded-2xl border border-zinc-200 shadow-2xl p-6 max-w-sm w-full space-y-6 relative overflow-hidden"
             >
               <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
                 <h3 className="text-xs font-black text-zinc-800 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[#b80035]">calendar_month</span> Confirm Booking
+                  <span className="material-symbols-outlined text-[#0f7a3a]">calendar_month</span> Confirm Booking
                 </h3>
                 <button 
                   onClick={() => setShowBookingModal(false)}
@@ -1085,16 +1287,30 @@ export default function App() {
 
               {isBookingSuccess ? (
                 <div className="py-6 text-center space-y-3">
-                  <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-100 flex-center text-emerald-500 mx-auto animate-bounce">
-                    <span className="material-symbols-outlined text-3xl font-black">done_all</span>
-                  </div>
+                  {/* Success Mascot Animation */}
+                  <motion.div 
+                    className="w-20 h-20 mx-auto"
+                    animate={{ scale: [1, 1.1, 1], rotate: [0, 10, -10, 0] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  >
+                    <img src="/oru-victory.png" alt="ORU Success" className="w-full h-full object-contain" />
+                  </motion.div>
                   <div>
-                    <h4 className="text-sm font-extrabold text-zinc-800">Booking Confirmed!</h4>
-                    <p className="text-[10px] text-zinc-400 mt-0.5">Redirecting to bookings portal...</p>
+                    <h4 className="text-sm font-extrabold text-zinc-800">Booking Confirmed by ORU!</h4>
+                    <p className="text-[10px] text-zinc-400 mt-0.5">Redirecting to bookings ledger portal...</p>
                   </div>
                 </div>
               ) : (
                 <form onSubmit={handleBookingSubmit} className="space-y-4">
+                  
+                  {/* Small Mascot helper inside booking form */}
+                  <div className="flex items-center gap-2 bg-zinc-50 border border-zinc-150 p-2.5 rounded-xl">
+                    <img src={isBookingProcessing ? "/oru-jump.png" : "/oru-thumbs-up.png"} alt="ORU" className={`w-8 h-8 object-contain ${isBookingProcessing ? 'animate-bounce' : ''}`} />
+                    <span className="text-[10px] font-bold text-zinc-650 leading-tight">
+                      {isBookingProcessing ? "Hold tight! Completing payment..." : "Great choice! Let's lock in your move-in details."}
+                    </span>
+                  </div>
+
                   <div className="text-xs space-y-1">
                     <div className="flex justify-between text-zinc-500">
                       <span>Property:</span>
@@ -1127,7 +1343,7 @@ export default function App() {
                         onClick={() => setPaymentMethod("upi")}
                         className={`py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                           paymentMethod === 'upi' 
-                            ? 'bg-rose-50 border-[#b80035] text-[#b80035]' 
+                            ? 'bg-emerald-50 border-[#0f7a3a] text-[#0f7a3a]' 
                             : 'bg-white border-zinc-200 text-zinc-700'
                         }`}
                       >
@@ -1138,7 +1354,7 @@ export default function App() {
                         onClick={() => setPaymentMethod("card")}
                         className={`py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                           paymentMethod === 'card' 
-                            ? 'bg-rose-50 border-[#b80035] text-[#b80035]' 
+                            ? 'bg-emerald-50 border-[#0f7a3a] text-[#0f7a3a]' 
                             : 'bg-white border-zinc-200 text-zinc-700'
                         }`}
                       >
@@ -1195,33 +1411,40 @@ export default function App() {
             setSelectedGenderFilter("all");
             setSelectedSharingFilter("all");
           }}
-          className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer ${currentPage === 'home' ? 'text-[#b80035]' : 'text-zinc-400'}`}
+          className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer ${currentPage === 'home' ? 'text-[#0f7a3a]' : 'text-zinc-400'}`}
         >
           <span className="material-symbols-outlined" style={{ fontVariationSettings: currentPage === 'home' ? "'FILL' 1" : "'FILL' 0" }}>home</span>
           <span className="font-bold text-[9px] mt-0.5">Home</span>
         </button>
         <button 
           onClick={() => setCurrentPage("search")}
-          className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer ${currentPage === 'search' ? 'text-[#b80035]' : 'text-zinc-400'}`}
+          className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer ${currentPage === 'search' ? 'text-[#0f7a3a]' : 'text-zinc-400'}`}
         >
           <span className="material-symbols-outlined" style={{ fontVariationSettings: currentPage === 'search' ? "'FILL' 1" : "'FILL' 0" }}>search</span>
           <span className="font-bold text-[9px] mt-0.5">Search</span>
         </button>
         <button 
           onClick={() => setCurrentPage("bookings")}
-          className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer ${currentPage === 'bookings' ? 'text-[#b80035]' : 'text-zinc-400'}`}
+          className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer ${currentPage === 'bookings' ? 'text-[#0f7a3a]' : 'text-zinc-400'}`}
         >
           <span className="material-symbols-outlined" style={{ fontVariationSettings: currentPage === 'bookings' ? "'FILL' 1" : "'FILL' 0" }}>book_online</span>
           <span className="font-bold text-[9px] mt-0.5">Bookings</span>
         </button>
         <button 
           onClick={() => setProfileOpen(!profileOpen)}
-          className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer ${profileOpen ? 'text-[#b80035]' : 'text-zinc-400'}`}
+          className={`flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer ${profileOpen ? 'text-[#0f7a3a]' : 'text-zinc-400'}`}
         >
           <span className="material-symbols-outlined">person</span>
           <span className="font-bold text-[9px] mt-0.5">Profile</span>
         </button>
       </nav>
+
+      {/* ----------------- FLOATING MASCOT helper ----------------- */}
+      <FloatingMascot 
+        setCurrentPage={setCurrentPage} 
+        setSearchQuery={setSearchQuery} 
+        setSelectedGenderFilter={setSelectedGenderFilter} 
+      />
 
     </div>
   );
